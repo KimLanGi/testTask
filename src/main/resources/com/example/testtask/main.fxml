@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.testtask.HelloController">
-    <TableView fx:id="tableView">
-        <columns>
-            <TableColumn text="Автор" />
-            <TableColumn text="Комментарии" />
-            <TableColumn text="Дата" />
-        </columns>
-    </TableView>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.testtask.RedditController" spacing="10">
+    <!-- Список публикаций -->
+    <ListView fx:id="listViewPosts" prefHeight="400.0" prefWidth="600.0" />
+
+    <!-- Кнопки для управления пагинацией -->
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="buttonPrevious" text="Previous" onAction="#loadPreviousPage" />
+        <Button fx:id="buttonNext" text="Next" onAction="#loadNextPage" />
+    </HBox>
 </VBox>
