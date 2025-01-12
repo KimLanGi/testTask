@@ -22,7 +22,7 @@ data class PostContainer(
 data class RedditPost(
     val author: String,
     val title: String,
-    val created_utc: Long,
+    val created_utc: Double,
     val thumbnail: String?,
     val num_comments: Int,
     val url: String

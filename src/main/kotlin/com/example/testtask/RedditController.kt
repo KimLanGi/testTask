@@ -5,17 +5,13 @@ import javafx.scene.control.Button
 import javafx.scene.control.ListView
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import kotlinx.coroutines.*
 import javafx.application.Platform
 import java.awt.Desktop
-import java.io.File
 import java.net.URI
-import java.text.SimpleDateFormat
-import java.util.*
 
 class RedditController {
     @FXML
@@ -71,7 +67,6 @@ class RedditController {
                 postBox.children.add(saveButton)
             }
 
-
             listViewPosts.items.add(postBox)
         }
     }
@@ -81,7 +76,7 @@ class RedditController {
         loadPosts()
     }
 
-    private fun formatTime(unixTime: Long): String {
+    private fun formatTime(unixTime: Double): String {
         val currentTime = System.currentTimeMillis() / 1000
         val hoursAgo = (currentTime - unixTime) / 3600
         return "$hoursAgo hours ago"
@@ -120,7 +115,6 @@ class RedditController {
         // Реализуйте логику для загрузки предыдущей страницы, если это требуется
         println("Previous page clicked")
     }
-
 
     private suspend fun downloadImage(url: String): ByteArray {
         return redditService.downloadImage(url)

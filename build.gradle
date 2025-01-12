@@ -5,7 +5,7 @@ plugins {
     id 'org.javamodularity.moduleplugin' version '1.8.12'
     id 'org.openjfx.javafxplugin' version '0.0.13'
     id 'org.beryx.jlink' version '2.25.0'
-//    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.0'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.23'
 }
 
 group 'com.example'
@@ -73,8 +73,8 @@ dependencies {
     implementation("org.openjfx:javafx-controls:21.0.0")
     implementation("org.openjfx:javafx-fxml:21.0.0")
 
-//    implementation 'org.slf4j:slf4j-api:2.0.0-alpha0'
-//    implementation 'org.slf4j:slf4j-simple:2.0.0-alpha0'  // Or use logback-classic instead
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
 
 }
 
