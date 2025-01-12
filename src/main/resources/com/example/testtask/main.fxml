@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Pos?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.testtask.RedditController" spacing="10">
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.testtask.RedditController" spacing="15" alignment="CENTER">
     <!-- Список публикаций -->
-    <ListView fx:id="listViewPosts" prefHeight="400.0" prefWidth="600.0" />
+    <ListView fx:id="listViewPosts" prefHeight="400.0" prefWidth="600.0" styleClass="post-list" />
 
     <!-- Кнопки для управления пагинацией -->
-    <HBox spacing="10" alignment="CENTER">
-        <Button fx:id="buttonPrevious" text="Previous" onAction="#loadPreviousPage" />
-        <Button fx:id="buttonNext" text="Next" onAction="#loadNextPage" />
+    <HBox spacing="20" alignment="CENTER">
+        <Button fx:id="buttonPrevious" text="⮘" onAction="#loadPreviousPage" styleClass="pagination-button" />
+        <Label fx:id="pageLabel" text="Page 1" styleClass="page-label" />
+        <Button fx:id="buttonNext" text="⮚" onAction="#loadNextPage" styleClass="pagination-button" />
     </HBox>
 </VBox>

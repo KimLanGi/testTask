@@ -11,6 +11,7 @@ import javafx.stage.FileChooser
 import kotlinx.coroutines.*
 import javafx.application.Platform
 import java.awt.Desktop
+import javafx.scene.control.Label
 import java.net.URI
 
 class RedditController {
@@ -20,9 +21,13 @@ class RedditController {
     private lateinit var buttonPrevious: Button
     @FXML
     private lateinit var buttonNext: Button
+    @FXML
+    private lateinit var pageLabel: Label
 
     private val redditService = RedditService()
     private var after: String? = null
+    private var before: String? = null  // Для хранения предыдущего значения 'after'
+    private var currentPage: Int = 1
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     @FXML
@@ -37,6 +42,8 @@ class RedditController {
                 Platform.runLater {
                     displayPosts(response.data.children)
                     after = response.data.after
+                    before = response.data.before
+                    updatePagination()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -56,7 +63,7 @@ class RedditController {
                 val imageView = ImageView(Image(post.data.thumbnail))
                 imageView.fitWidth = 100.0
                 imageView.isPreserveRatio = true
-                // Устанавливаем обработчик события для клика на изображении
+
                 imageView.setOnMouseClicked {
                     openImage(post.data.url) // Открытие URL изображения в браузере
                 }
@@ -71,14 +78,35 @@ class RedditController {
         }
     }
 
+    private fun updatePagination() {
+
+        pageLabel.text = "Page $currentPage"
+
+        buttonPrevious.isDisable = before == null
+        buttonNext.isDisable = after == null
+    }
+
     @FXML
     private fun loadNextPage() {
-        loadPosts()
+        if (after != null) {
+            currentPage++
+            loadPosts()
+            listViewPosts.scrollTo(0)
+        }
+    }
+
+    @FXML
+    private fun loadPreviousPage() {
+        if (before != null) {
+            currentPage--
+            after = before  // Меняем 'after' на 'before' для загрузки предыдущей страницы
+            loadPosts()
+        }
     }
 
     private fun formatTime(unixTime: Double): String {
         val currentTime = System.currentTimeMillis() / 1000
-        val hoursAgo = (currentTime - unixTime) / 3600
+        val hoursAgo = (currentTime - unixTime).toInt() / 3600
         return "$hoursAgo hours ago"
     }
 
@@ -108,12 +136,6 @@ class RedditController {
                 }
             }
         }
-    }
-
-    @FXML
-    private fun loadPreviousPage() {
-        // Реализуйте логику для загрузки предыдущей страницы, если это требуется
-        println("Previous page clicked")
     }
 
     private suspend fun downloadImage(url: String): ByteArray {

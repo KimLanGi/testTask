@@ -10,7 +10,8 @@ data class RedditResponse(
 @Serializable
 data class RedditData(
     val children: List<PostContainer>,
-    val after: String?
+    val after: String?,
+    val before: String?
 )
 
 @Serializable
