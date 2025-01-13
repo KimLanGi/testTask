@@ -5,7 +5,7 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.testtask.RedditController" spacing="15" alignment="CENTER">
     <!-- Список публикаций -->
-    <ListView fx:id="listViewPosts" prefHeight="400.0" prefWidth="600.0" styleClass="post-list" />
+    <ListView fx:id="listViewPosts" prefHeight="400.0" prefWidth="300.0" styleClass="post-list" />
 
     <!-- Кнопки для управления пагинацией -->
     <HBox spacing="20" alignment="CENTER">

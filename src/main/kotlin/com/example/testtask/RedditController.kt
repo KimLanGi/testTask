@@ -26,9 +26,9 @@ class RedditController {
 
     private val redditService = RedditService()
     private var after: String? = null
-    private var before: String? = null  // Для хранения предыдущего значения 'after'
     private var currentPage: Int = 1
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private val history = mutableListOf<String?>() // История страниц (включая 'null')
 
     @FXML
     fun initialize() {
@@ -41,12 +41,23 @@ class RedditController {
                 val response = redditService.getTopPosts(after)
                 Platform.runLater {
                     displayPosts(response.data.children)
+
+                    // Сохраняем текущую страницу в историю
+                    if (currentPage == 1) {
+                        history.clear() // Очистка истории на первой странице
+                    }
+                    if (!history.contains(after)) {
+                        history.add(after) // Добавляем 'after' в историю
+                    }
+
                     after = response.data.after
-                    before = response.data.before
                     updatePagination()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                Platform.runLater {
+                    println("Failed to load posts: ${e.message}")
+                }
             }
         }
     }
@@ -79,28 +90,52 @@ class RedditController {
     }
 
     private fun updatePagination() {
-
         pageLabel.text = "Page $currentPage"
-
-        buttonPrevious.isDisable = before == null
+        buttonPrevious.isDisable = currentPage == 1
         buttonNext.isDisable = after == null
     }
 
     @FXML
     private fun loadNextPage() {
         if (after != null) {
+            buttonNext.isDisable = true // Отключаем кнопку, пока не загрузится новая страница
             currentPage++
-            loadPosts()
+            coroutineScope.launch {
+                try {
+                    val response = redditService.getTopPosts(after)
+                    Platform.runLater {
+                        displayPosts(response.data.children)
+
+                        // Сохраняем текущую страницу в историю
+                        if (!history.contains(after)) {
+                            history.add(after) // Добавляем 'after' в историю
+                        }
+
+                        after = response.data.after
+                        updatePagination()
+                        buttonNext.isDisable = false // Включаем кнопку после загрузки данных
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Platform.runLater {
+                        println("Failed to load posts: ${e.message}")
+                        buttonNext.isDisable = false // Включаем кнопку в случае ошибки
+                    }
+                }
+            }
             listViewPosts.scrollTo(0)
         }
     }
 
     @FXML
     private fun loadPreviousPage() {
-        if (before != null) {
+        buttonPrevious.isDisable = true
+        if (currentPage > 1) {
+            // Возвращаемся на предыдущую страницу
             currentPage--
-            after = before  // Меняем 'after' на 'before' для загрузки предыдущей страницы
+            after = history.getOrNull(currentPage - 1) // Получаем предыдущий 'after'
             loadPosts()
+            listViewPosts.scrollTo(0)
         }
     }
 
