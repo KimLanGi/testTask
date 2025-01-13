@@ -1,8 +1,6 @@
 package com.example.testtask
 
 import javafx.fxml.FXML
-import javafx.scene.control.Button
-import javafx.scene.control.ListView
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
@@ -10,8 +8,9 @@ import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import kotlinx.coroutines.*
 import javafx.application.Platform
+import javafx.scene.control.*
+import javafx.scene.input.MouseButton
 import java.awt.Desktop
-import javafx.scene.control.Label
 import java.net.URI
 
 class RedditController {
@@ -28,12 +27,13 @@ class RedditController {
     private var after: String? = null
     private var currentPage: Int = 1
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-    private val history = mutableListOf<String?>() // История страниц (включая 'null')
+    private val history = mutableListOf<String?>()
 
     @FXML
     fun initialize() {
         loadPosts()
     }
+
 
     private fun loadPosts() {
         coroutineScope.launch {
@@ -42,12 +42,11 @@ class RedditController {
                 Platform.runLater {
                     displayPosts(response.data.children)
 
-                    // Сохраняем текущую страницу в историю
                     if (currentPage == 1) {
-                        history.clear() // Очистка истории на первой странице
+                        history.clear()
                     }
                     if (!history.contains(after)) {
-                        history.add(after) // Добавляем 'after' в историю
+                        history.add(after)
                     }
 
                     after = response.data.after
@@ -65,24 +64,40 @@ class RedditController {
     private fun displayPosts(posts: List<PostContainer>) {
         listViewPosts.items.clear()
         for (post in posts) {
-            val postBox = VBox(10.0)
-            postBox.children.add(Text("Author: ${post.data.author}"))
-            postBox.children.add(Text("Posted: ${formatTime(post.data.created_utc)}"))
-            postBox.children.add(Text("Comments: ${post.data.num_comments}"))
+            val postBox = VBox(10.0).apply {
+                styleClass.add("post-box")
+            }
+
+            val authorText = Text("Author: ${post.data.author}")
+            val postedText = Text("Posted: ${formatTime(post.data.created_utc)}")
+            val commentsText = Text("Comments: ${post.data.num_comments}")
+
+            postBox.children.addAll(authorText, postedText, commentsText)
 
             if (!post.data.thumbnail.isNullOrBlank() && post.data.thumbnail.startsWith("http")) {
-                val imageView = ImageView(Image(post.data.thumbnail))
-                imageView.fitWidth = 100.0
-                imageView.isPreserveRatio = true
-
-                imageView.setOnMouseClicked {
-                    openImage(post.data.url) // Открытие URL изображения в браузере
+                val imageView = ImageView(Image(post.data.thumbnail)).apply {
+                    fitWidth = 200.0
+                    isPreserveRatio = true
                 }
-                postBox.children.add(imageView)
 
-                val saveButton = Button("Save Image")
-                saveButton.setOnAction { saveImage(post.data.thumbnail) }
-                postBox.children.add(saveButton)
+                // Context menu
+                val contextMenu = ContextMenu()
+                val saveImageMenuItem = MenuItem("Save Image")
+                saveImageMenuItem.setOnAction { saveImage(post.data.thumbnail) }
+                contextMenu.items.add(saveImageMenuItem)
+
+                imageView.setOnContextMenuRequested { event ->
+                    contextMenu.show(imageView, event.screenX, event.screenY)
+                }
+
+                // Open image
+                imageView.setOnMouseClicked { event ->
+                    if (event.button == MouseButton.PRIMARY) {
+                        openImage(post.data.url)
+                    }
+                }
+
+                postBox.children.add(imageView)
             }
 
             listViewPosts.items.add(postBox)
@@ -98,7 +113,7 @@ class RedditController {
     @FXML
     private fun loadNextPage() {
         if (after != null) {
-            buttonNext.isDisable = true // Отключаем кнопку, пока не загрузится новая страница
+            buttonNext.isDisable = true
             currentPage++
             coroutineScope.launch {
                 try {
@@ -106,20 +121,20 @@ class RedditController {
                     Platform.runLater {
                         displayPosts(response.data.children)
 
-                        // Сохраняем текущую страницу в историю
                         if (!history.contains(after)) {
-                            history.add(after) // Добавляем 'after' в историю
+                            history.add(after) // Add 'after' to the history
                         }
 
                         after = response.data.after
                         updatePagination()
-                        buttonNext.isDisable = false // Включаем кнопку после загрузки данных
+
+                        buttonNext.isDisable = false
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Platform.runLater {
                         println("Failed to load posts: ${e.message}")
-                        buttonNext.isDisable = false // Включаем кнопку в случае ошибки
+                        buttonNext.isDisable = false
                     }
                 }
             }
@@ -131,13 +146,13 @@ class RedditController {
     private fun loadPreviousPage() {
         buttonPrevious.isDisable = true
         if (currentPage > 1) {
-            // Возвращаемся на предыдущую страницу
             currentPage--
-            after = history.getOrNull(currentPage - 1) // Получаем предыдущий 'after'
+            after = history.getOrNull(currentPage - 1) // Get previous 'after'
             loadPosts()
             listViewPosts.scrollTo(0)
         }
     }
+
 
     private fun formatTime(unixTime: Double): String {
         val currentTime = System.currentTimeMillis() / 1000
@@ -176,4 +191,5 @@ class RedditController {
     private suspend fun downloadImage(url: String): ByteArray {
         return redditService.downloadImage(url)
     }
+
 }

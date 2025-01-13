@@ -1,4 +1,14 @@
-/* Основной стиль для постов */
+.post-box {
+    -fx-alignment: center;
+    -fx-background-color: #ffffff;
+    -fx-padding: 15px;
+    -fx-border-color: #dcdcdc;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-spacing: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
 .post-list {
     -fx-background-color: #f9f9f9;
     -fx-padding: 10px;
@@ -6,7 +16,6 @@
     -fx-background-radius: 10px;
 }
 
-/* Стиль для отдельных постов */
 .list-cell {
     -fx-background-color: #ffffff;
     -fx-border-color: #dcdcdc;
@@ -17,7 +26,6 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
 }
 
-/* Кнопки пагинации */
 .pagination-button {
     -fx-background-color: #3a3a3a;
     -fx-text-fill: white;
@@ -28,12 +36,10 @@
     -fx-font-size: 16px;
 }
 
-/* Кнопки пагинации при наведении */
 .pagination-button:hover {
     -fx-background-color: #555555;
 }
 
-/* Стиль для метки с номером страницы */
 .page-label {
     -fx-font-size: 14px;
     -fx-text-fill: #3a3a3a;
